@@ -1,0 +1,36 @@
+Usage - python gatherConsolidatedDeliverables.py <BranchName> <From Date/Build> <To Date/Build>
+BranchName is mandatory, rest are optional, if From,To information is not provided the last 50 builds are picked by default
+
+Usage examples:
+
+python gatherConsolidatedDeliverables.py EPG_3.18_28
+python gatherConsolidatedDeliverables.py EPG_3.18_28 2021-09-06 2021-09-07
+python gatherConsolidatedDeliverables.py EPG_3.18_28 "2021-09-06 09:06:20" "2021-09-07 14:05:17"
+python gatherConsolidatedDeliverables.py EPG_3.18_28 EPG_28R63XV01_210906_090620 EPG_28R63XZ01_210907_140517
+
+C:\Python27>python gatherConsolidatedDeliverables.py EPG_3.18_28
+
+
+**********   Consolidated Feature list   **********
+
+['PCPB-10964', 'PCPB-34986']
+
+
+**********  Consolidated DPI deliveries **********
+
+['DPI-21.5.12-18R31AH']
+
+
+**********     Consolidated TR list      **********
+
+['PCTR-34407', 'PCTR-34759', 'PCTR-35798', 'PCTR-32502', 'PCTR-33571', 'PCTR-34986', 'PCTR-33368', 'PCTR-35467', 'PCTR-35198', 'PCTR-35147', 'PCTR-35186', 'PCTR-34858', 'PCTR-33566', 'PCTR-34550', 'PCTR-35174', 'PCTR-34957', 'PCTR-35203', 'PCTR-35144']
+
+
+To fetch the possible PCG TR candidates please use the below JIRA query
+
+project = "PDU PC TR Tool" AND key in ('PCTR-34407', 'PCTR-34759', 'PCTR-35798', 'PCTR-32502', 'PCTR-33571', 'PCTR-34986', 'PCTR-33368', 'PCTR-35467', 'PCTR-35198', 'PCTR-35147', 'PCTR-35186', 'PCTR-34858', 'PCTR-33566', 'PCTR-34550', 'PCTR-35174', 'PCTR-34957', 'PCTR-35203', 'PCTR-35144') and ("Node product" in ("PCG 1 (AXM 901 07/1)") or "Impacted products and NFs (CNOM)" in (PCG,PCUP) or "Impacted products and NFs (CRE)"  in (PCG,PCUP) or "Impacted products and NFs (EPG 3)"  in (PCG,PCUP) or "Impacted products and NFs (PC ADP Reusable Service)"  in (PCG) or "Impacted products and NFs (PCC)"  in (PCG) or "Impacted products and NFs (PCG)"  is not EMPTY  or "Impacted products and NFs (PCUP)"  is not EMPTY )
+
+
+To fetch the possible PCC TR candidates please use the below JIRA query
+
+project = "PDU PC TR Tool" AND key in ('PCTR-34407', 'PCTR-34759', 'PCTR-35798', 'PCTR-32502', 'PCTR-33571', 'PCTR-34986', 'PCTR-33368', 'PCTR-35467', 'PCTR-35198', 'PCTR-35147', 'PCTR-35186', 'PCTR-34858', 'PCTR-33566', 'PCTR-34550', 'PCTR-35174', 'PCTR-34957', 'PCTR-35203', 'PCTR-35144') and ("Node product" = "PCC 1 (AXB 250 19/1)" or "Impacted products and NFs (CNOM)" in (PCC,"PC SM (cSMF & GW-C)") or "Impacted products and NFs (CRE)"  in (PCC,"PC SM (cSMF & GW-C)") or "Impacted products and NFs (EPG 3)"  in ("PC SM (cSMF & GW-C)") or "Impacted products and NFs (PC ADP Reusable Service)"  in (PCC) or "Impacted products and NFs (PCC)" is not EMPTY  or "Impacted products and NFs (PCG)"  in (PCC) or "Impacted products and NFs (PC SM (cSMF & GW-C))"  is not EMPTY or "Impacted products and NFs (PCUP)"  in (PCC,"PC SM (cSMF & GW-C)") or "Impacted products and NFs"  in (PCC) or "Impacted products and NFs (SGSN-MME)" in ("PCC - AMF","PCC - AMF PCC - MME SGSN-MME - AMF SGSN-MME - SGSN SGSN-MME - MME","PCC - AMF PCC - MME SGSN-MME - AMF SGSN-MME - SGSN SGSN-MME - MME","PCC - AMF PCC - MME","PCC - AMF PCC - SMF","PCC - AMF SGSN-MME - AMF","PCC - MME PCC - SMF","PCC - AMF PCC - MME","PCC - MME"))
