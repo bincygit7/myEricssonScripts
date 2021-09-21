@@ -23,6 +23,7 @@ featureIDs=[]
 TRList=[]
 FeatureList=[]
 DPIList=[]
+SDKList=[]
 format1 = "%Y-%m-%d"
 format2 = "%Y-%m-%d %H:%M:%S"
 build_provided=False
@@ -31,7 +32,7 @@ if(len(sys.argv) == 2):
     from_date=""
     to_date=""
 else:
-    limit="100"
+    limit="1000"
 
 epg_branch_list = ['EPG_2.16_27','EPG_2.14_27','EPG_2.15_27','EPG_3.7_28','EPG_3.9_28','EPG_3.10_28','EPG_3.11_28','EPG_3.12_28','EPG_3.13_28','EPG_3.14_28','EPG_3.15_28','EPG_3.16_28','EPG_3.17_28','EPG_3.18_28','EPG_3.19_28','EPG_3.20_28','EPG_3.21_28']
 
@@ -67,20 +68,38 @@ if(len(sys.argv) > 2):
     else:
         if re.search("EPG_28R", sys.argv[2]):
             build_provided=True
-            from_date=datetime.datetime.strptime("20"+sys.argv[2].split("_")[2]+" "+sys.argv[2].split("_")[3], '%Y%m%d %H%M%S').strftime('%Y-%m-%d %H:%M:%S').replace(" ", "%20")
-            to_date=datetime.datetime.strptime("20"+sys.argv[3].split("_")[2]+" "+sys.argv[3].split("_")[3], '%Y%m%d %H%M%S').strftime('%Y-%m-%d %H:%M:%S').replace(" ", "%20")
+            fromdate=datetime.datetime.strptime(datetime.datetime.strptime("20"+sys.argv[2].split("_")[2]+" "+sys.argv[2].split("_")[3], '%Y%m%d %H%M%S').strftime('%Y-%m-%d %H:%M:%S'), format2)
+            todate=datetime.datetime.strptime(datetime.datetime.strptime("20"+sys.argv[3].split("_")[2]+" "+sys.argv[3].split("_")[3], '%Y%m%d %H%M%S').strftime('%Y-%m-%d %H:%M:%S'), format2)
+            if(fromdate < todate):
+                from_date=str(fromdate - datetime.timedelta(seconds=7080)).replace(" ", "%20")
+                to_date=str(todate - datetime.timedelta(seconds=6960)).replace(" ", "%20")
+            else:
+                from_date=str(todate - datetime.timedelta(seconds=7080)).replace(" ", "%20")
+                to_date=str(fromdate - datetime.timedelta(seconds=6960)).replace(" ", "%20")
         else:
             if(is_valid_date(sys.argv[2], format1)):
                 if(is_valid_date(sys.argv[3], format1)):
-                  from_date=sys.argv[2]
-                  to_date=sys.argv[3]
+                    fromdate=datetime.datetime.strptime(sys.argv[2], format1)
+                    todate=datetime.datetime.strptime(sys.argv[3], format1)
+                    if(fromdate < todate):
+                        from_date=str(fromdate - datetime.timedelta(seconds=7080)).replace(" ", "%20")
+                        to_date=str(todate - datetime.timedelta(seconds=6960)).replace(" ", "%20")
+                    else:
+                        from_date=str(todate - datetime.timedelta(seconds=7080)).replace(" ", "%20")
+                        to_date=str(fromdate - datetime.timedelta(seconds=6960)).replace(" ", "%20")
                 else:
                     print "\nERROR: Invalid date format. Supported data formats are YYYY-MM-DD and YYYY-MM-DD HH:MM:SS"
                     sys.exit()
             elif(is_valid_date(sys.argv[2], format2)):
                 if(is_valid_date(sys.argv[3], format2)):
-                    from_date=sys.argv[2].replace(" ", "%20")
-                    to_date=sys.argv[3].replace(" ", "%20")
+                    fromdate=datetime.datetime.strptime(sys.argv[2], format2)
+                    todate=datetime.datetime.strptime(sys.argv[3], format2)
+                    if(fromdate < todate):
+                        from_date=str(fromdate - datetime.timedelta(seconds=7080)).replace(" ", "%20")
+                        to_date=str(todate - datetime.timedelta(seconds=6960)).replace(" ", "%20")
+                    else:
+                        from_date=str(todate - datetime.timedelta(seconds=7080)).replace(" ", "%20")
+                        to_date=str(fromdate - datetime.timedelta(seconds=6960)).replace(" ", "%20")
                 else:
                     print "\nERROR: Invalid date format. Supported data formats are YYYY-MM-DD and YYYY-MM-DD HH:MM:SS"
                     sys.exit()
@@ -89,12 +108,17 @@ if(len(sys.argv) > 2):
                 sys.exit()
                   
             
-buildUrl="https://epgweb.sero.wh.rnd.internal.ericsson.com/build/api/getBuilds?limit="+limit+"&filter[product_name]="+branchName+"&filter[official]=1&from="+from_date+"&to="+to_date
+buildUrl="https://epgweb.sero.wh.rnd.internal.ericsson.com/build/api/getBuilds?limit="+limit+"&filter[product_name]="+branchName+"&filter[official]=1&from="+from_date+"&to="+to_date+"&filter[tags][version_update_build]=1"
 buildUrlResponse = urllib2.urlopen(buildUrl).read()
-buildIds=re.findall(r"EPG_28R\w+", buildUrlResponse)
+buildIds=re.findall(r"EPG_28\w+", buildUrlResponse)
 for buildId in buildIds:
+    if(len(buildId.split("_")) > 4):
+        continue
     deliverableUrl="https://epgweb.sero.wh.rnd.internal.ericsson.com/deliverable/api/getDeliverablesForBuild?build_id="+buildId
     deliverableUrlResponse=urllib2.urlopen(deliverableUrl).read()
+    sdkIds=re.findall(r"Merge-branch-dev-\w+.\w+.\w+.\w+.\w+.\w+", deliverableUrlResponse)
+    for sdkId in sdkIds:
+        SDKList.append(sdkId.split("-")[3])
     trIDs=re.findall(r"PCTR-\w+", deliverableUrlResponse)
     for trId in trIDs:
         TRList.append(trId)
@@ -108,6 +132,7 @@ for buildId in buildIds:
 consolidatedTRList = removeduplicates(TRList)
 consolidatedFeatureList = removeduplicates(FeatureList)
 consolidatedDPIList = removeduplicates(DPIList)
+consolidatedSDKList = removeduplicates(SDKList)
 #print buildIds
 print "\n\n**********   Consolidated Feature list   **********\n"
 if consolidatedFeatureList:
@@ -123,6 +148,13 @@ elif build_provided:
     print "No DPI deliveries found across the builds"
 else:
     print "No DPI deliveries found across the builds generated during the provided dates"
+print "\n\n**********  Consolidated SDK deliveries **********\n"
+if consolidatedSDKList:
+    print consolidatedSDKList
+elif build_provided:
+    print "No SDK deliveries found across the builds"
+else:
+    print "No SDK deliveries found across the builds generated during the provided dates"
 print "\n\n**********     Consolidated TR list      **********\n"
 if consolidatedTRList:
     print consolidatedTRList
