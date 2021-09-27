@@ -111,6 +111,12 @@ if(len(sys.argv) > 2):
 buildUrl="https://epgweb.sero.wh.rnd.internal.ericsson.com/build/api/getBuilds?limit="+limit+"&filter[product_name]="+branchName+"&filter[official]=1&from="+from_date+"&to="+to_date+"&filter[tags][version_update_build]=1"
 buildUrlResponse = urllib2.urlopen(buildUrl).read()
 buildIds=re.findall(r"EPG_28\w+", buildUrlResponse)
+last_build=""
+for i in range(10):
+    if(len(buildIds[len(buildIds)-(i+1)].split("_")) == 4):
+        last_build=buildIds[len(buildIds)-(i+1)]
+        break
+print "Gathering deliverables from ",last_build," to ",buildIds[0]
 for buildId in buildIds:
     if(len(buildId.split("_")) > 4):
         continue
@@ -128,7 +134,6 @@ for buildId in buildIds:
     featureIDs=re.findall(r"PCPB-\w+", deliverableUrlResponse)
     for featureID in featureIDs:
         FeatureList.append(featureID)
-
 consolidatedTRList = removeduplicates(TRList)
 consolidatedFeatureList = removeduplicates(FeatureList)
 consolidatedDPIList = removeduplicates(DPIList)
