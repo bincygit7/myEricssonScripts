@@ -34,7 +34,7 @@ if(len(sys.argv) == 2):
 else:
     limit="1000"
 
-epg_branch_list = ['EPG_2.16_27','EPG_2.14_27','EPG_2.15_27','EPG_3.7_28','EPG_3.9_28','EPG_3.10_28','EPG_3.11_28','EPG_3.12_28','EPG_3.13_28','EPG_3.14_28','EPG_3.15_28','EPG_3.16_28','EPG_3.17_28','EPG_3.18_28','EPG_3.19_28','EPG_3.20_28','EPG_3.21_28','EPG_3.22_28','EPG_3.23_28','EPG_3.24_28','EPG_3.25_28']
+epg_branch_list = ['EPG_2.16_27','EPG_2.14_27','EPG_2.15_27','EPG_3.7_28','EPG_3.9_28','EPG_3.10_28','EPG_3.11_28','EPG_3.12_28','EPG_3.13_28','EPG_3.14_28','EPG_3.15_28','EPG_3.16_28','EPG_3.17_28','EPG_3.18_28','EPG_3.19_28','EPG_3.20_28','EPG_3.21_28','EPG_3.22_28','EPG_3.23_28','EPG_3.24_28','EPG_3.25_28','EPG_3.26_28','EPG_3.27_28','EPG_3.28_28']
 
 #buildUrlResponse = urllib2.urlopen("https://epgweb.sero.wh.rnd.internal.ericsson.com/deliverable/api/getDeliverablesForBuild?build_id=EPG_28R69TY01_210907_090244").read()
 #contents = urllib2.urlopen("https://epgweb.sero.wh.rnd.internal.ericsson.com/build/api/getBuilds?limit=&filter[product_name]=EPG_3.18_28&filter[official]=1&end=2021-08-02%2007:38:14").read()
