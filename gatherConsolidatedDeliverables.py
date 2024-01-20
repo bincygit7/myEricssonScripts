@@ -29,6 +29,8 @@ TRList=[]
 FeatureList=[]
 DPIList=[]
 SDKList=[]
+UpCommonList=[]
+PCIMPList=[]
 format1 = "%Y-%m-%d"
 format2 = "%Y-%m-%d %H:%M:%S"
 build_provided=False
@@ -140,16 +142,23 @@ for buildId in buildIds:
     trIDs=re.findall(r"PCTR-\w+", deliverableUrlResponse)
     for trId in trIDs:
         TRList.append(trId)
+    impIDs=re.findall(r"PCIMP-\w+", deliverableUrlResponse)
+    for impID in impIDs:
+        PCIMPList.append(impID)
     DpIDs=re.findall(r"DPI-\w+.\w+.\w+-\w+", deliverableUrlResponse)
     for DpID in DpIDs:
         DPIList.append(DpID)
     featureIDs=re.findall(r"PCPB-\w+", deliverableUrlResponse)
     for featureID in featureIDs:
         FeatureList.append(featureID)
+    if re.search("Common-Base", deliverableUrlResponse):
+        UpCommonList.append(deliverableUrlResponse.split("\"")[11])
 consolidatedTRList = removeduplicates(TRList)
+consolidatedPCIMPList = removeduplicates(PCIMPList)
 consolidatedFeatureList = removeduplicates(FeatureList)
 consolidatedDPIList = removeduplicates(DPIList)
 consolidatedSDKList = removeduplicates(SDKList)
+consolidatedUpCommonList = removeduplicates(UpCommonList)
 #print buildIds
 print ("\n\n**********   Consolidated Feature list   **********\n")
 if consolidatedFeatureList:
@@ -172,19 +181,57 @@ elif build_provided:
     print ("No SDK deliveries found across the builds")
 else:
     print ("No SDK deliveries found across the builds generated during the provided dates")
+print ("\n\n**********   Consolidated UpCommon list   **********\n")
+if consolidatedUpCommonList:
+    print (consolidatedUpCommonList)
+elif build_provided:
+    print ("No UpCommon were delivered across the builds")
+else:
+    print ("No UpCommon were delivered across the builds generated during the provided dates")
+print ("\n\n**********  Consolidated PCIMP deliveries **********\n")
+if consolidatedPCIMPList:
+    print (consolidatedPCIMPList)
+elif build_provided:
+    print ("No PCIMP deliveries found across the builds")
+else:
+    print ("No PCIMP deliveries found across the builds generated during the provided dates")
 print ("\n\n**********     Consolidated TR list      **********\n")
 if consolidatedTRList:
     print (consolidatedTRList)
-    print ("\n\nTo fetch the possible EPG TR candidates please use the below JIRA query")
-    print ("\nproject = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" in (\"EPG 3 - SW (CXS 201 0032/28)\",\"EPG 3 - SW\") or \"Impacted products and NFs (EPG 3)\" = EPG or \"Impacted products and NFs (PCC)\" in (EPG,\"EPG 3\") or \"Impacted products and NFs (PC SM (cSMF & GW-C))\" in (\"EPG 3\",\"EPG 3 cSMF\",\"EPG 3 GW-C\",\"EPG 3 GW-C UPF\",\"EPG 3 No other impacted products or NFs\",\"EPG 3 SMF\") or \"Impacted products and NFs (PCUP)\" in (\"EPG 3\",\"EPG 3 PCG\",\"EPG 3 PC-UP\")) order by created DESC")
-    print ("\n\nTo fetch the possible PCG TR candidates please use the below JIRA query")
-    print ("\nproject = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" in (\"PCG 1 (AXM 901 07/1)\") or \"Impacted products and NFs (CNOM)\" in (PCG,PCUP) or \"Impacted products and NFs (CRE)\"  in (PCG,PCUP) or \"Impacted products and NFs (EPG 3)\"  in (PCG,PCUP) or \"Impacted products and NFs (PCC)\"  in (PCG) or \"Impacted products and NFs (PCG)\"  is not EMPTY  or \"Impacted products and NFs (PCUP)\"  is not EMPTY) ORDER BY created ASC")
-    print ("\n\nTo fetch the possible PCC TR candidates please use the below JIRA query")
-    print ("\nproject = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" = \"PCC 1 (AXB 250 19/1)\" or \"Impacted products and NFs (CNOM)\" in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (CRE)\"  in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (EPG 3)\"  in (\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (PCC)\" is not EMPTY  or \"Impacted products and NFs (PCG)\"  in (PCC) or \"Impacted products and NFs (PC SM (cSMF & GW-C))\"  is not EMPTY or \"Impacted products and NFs (PCUP)\"  in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs\"  in (PCC) or \"Impacted products and NFs (SGSN-MME)\" in (\"PCC - AMF\",\"PCC - AMF PCC - MME SGSN-MME - AMF SGSN-MME - SGSN SGSN-MME - MME\",\"PCC - AMF PCC - MME SGSN-MME - AMF SGSN-MME - SGSN SGSN-MME - MME\",\"PCC - AMF PCC - MME\",\"PCC - AMF PCC - SMF\",\"PCC - AMF SGSN-MME - AMF\",\"PCC - MME PCC - SMF\",\"PCC - AMF PCC - MME\",\"PCC - MME\")) ORDER BY created ASC")
-
+    if consolidatedPCIMPList:
+        print ("\n\nTo fetch the possible EPG TR and PCIMP candidates please use the below JIRA query")
+        print ("\n(project = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" in (\"EPG 3 - SW (CXS 201 0032/28)\",\"EPG 3 - SW\") or \"Impacted products and NFs (EPG 3)\" = EPG or \"Impacted products and NFs (PCC)\" in (EPG,\"EPG 3\") or \"Impacted products and NFs (PC SM (cSMF & GW-C))\" in (\"EPG 3\",\"EPG 3 cSMF\",\"EPG 3 GW-C\",\"EPG 3 GW-C UPF\",\"EPG 3 No other impacted products or NFs\",\"EPG 3 SMF\") or \"Impacted products and NFs (PCUP)\" in (\"EPG 3\",\"EPG 3 PCG\",\"EPG 3 PC-UP\"))) OR (project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'EPG' ) order by created DESC")    
+    else:
+        print ("\n\nTo fetch the possible EPG TR candidates please use the below JIRA query")
+        print ("\nproject = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" in (\"EPG 3 - SW (CXS 201 0032/28)\",\"EPG 3 - SW\") or \"Impacted products and NFs (EPG 3)\" = EPG or \"Impacted products and NFs (PCC)\" in (EPG,\"EPG 3\") or \"Impacted products and NFs (PC SM (cSMF & GW-C))\" in (\"EPG 3\",\"EPG 3 cSMF\",\"EPG 3 GW-C\",\"EPG 3 GW-C UPF\",\"EPG 3 No other impacted products or NFs\",\"EPG 3 SMF\") or \"Impacted products and NFs (PCUP)\" in (\"EPG 3\",\"EPG 3 PCG\",\"EPG 3 PC-UP\")) order by created DESC")
+    if consolidatedPCIMPList:
+        print ("\n\nTo fetch the possible PCG TR and PCIMP candidates please use the below JIRA query")
+        print ("\n(project = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" in (\"PCG 1 (AXM 901 07/1)\") or \"Impacted products and NFs (CNOM)\" in (PCG,PCUP) or \"Impacted products and NFs (CRE)\"  in (PCG,PCUP) or \"Impacted products and NFs (EPG 3)\"  in (PCG,PCUP) or \"Impacted products and NFs (PCC)\"  in (PCG) or \"Impacted products and NFs (PCG)\"  is not EMPTY  or \"Impacted products and NFs (PCUP)\"  is not EMPTY)) OR (project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'PCG' ) ORDER BY created ASC")
+    else:
+        print ("\n\nTo fetch the possible PCG TR candidates please use the below JIRA query")
+        print ("\nproject = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" in (\"PCG 1 (AXM 901 07/1)\") or \"Impacted products and NFs (CNOM)\" in (PCG,PCUP) or \"Impacted products and NFs (CRE)\"  in (PCG,PCUP) or \"Impacted products and NFs (EPG 3)\"  in (PCG,PCUP) or \"Impacted products and NFs (PCC)\"  in (PCG) or \"Impacted products and NFs (PCG)\"  is not EMPTY  or \"Impacted products and NFs (PCUP)\"  is not EMPTY) ORDER BY created ASC")
+    if consolidatedPCIMPList:
+        print ("\n\nTo fetch the possible PCC TR and PCIMP candidates please use the below JIRA query")
+        print ("\n(project = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" = \"PCC 1 (AXB 250 19/1)\" or \"Impacted products and NFs (CNOM)\" in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (CRE)\"  in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (EPG 3)\"  in (\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (PCC)\" is not EMPTY  or \"Impacted products and NFs (PCG)\"  in (PCC) or \"Impacted products and NFs (PC SM (cSMF & GW-C))\"  is not EMPTY or \"Impacted products and NFs (PCUP)\"  in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs\"  in (PCC) or \"Impacted products and NFs (SGSN-MME)\" in (\"PCC - AMF\",\"PCC - AMF PCC - MME SGSN-MME - AMF SGSN-MME - SGSN SGSN-MME - MME\",\"PCC - AMF PCC - MME SGSN-MME - AMF SGSN-MME - SGSN SGSN-MME - MME\",\"PCC - AMF PCC - MME\",\"PCC - AMF PCC - SMF\",\"PCC - AMF SGSN-MME - AMF\",\"PCC - MME PCC - SMF\",\"PCC - AMF PCC - MME\",\"PCC - MME\"))) OR (project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'PCC' ) ORDER BY created ASC")
+    else:
+        print ("\n\nTo fetch the possible PCC TR candidates please use the below JIRA query")
+        print ("\nproject = \"PDU PC TR Tool\" AND key in ("+str(consolidatedTRList)[1:-1]+") and (\"Node product\" = \"PCC 1 (AXB 250 19/1)\" or \"Impacted products and NFs (CNOM)\" in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (CRE)\"  in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (EPG 3)\"  in (\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs (PCC)\" is not EMPTY  or \"Impacted products and NFs (PCG)\"  in (PCC) or \"Impacted products and NFs (PC SM (cSMF & GW-C))\"  is not EMPTY or \"Impacted products and NFs (PCUP)\"  in (PCC,\"PC SM (cSMF & GW-C)\") or \"Impacted products and NFs\"  in (PCC) or \"Impacted products and NFs (SGSN-MME)\" in (\"PCC - AMF\",\"PCC - AMF PCC - MME SGSN-MME - AMF SGSN-MME - SGSN SGSN-MME - MME\",\"PCC - AMF PCC - MME SGSN-MME - AMF SGSN-MME - SGSN SGSN-MME - MME\",\"PCC - AMF PCC - MME\",\"PCC - AMF PCC - SMF\",\"PCC - AMF SGSN-MME - AMF\",\"PCC - MME PCC - SMF\",\"PCC - AMF PCC - MME\",\"PCC - MME\")) ORDER BY created ASC")
 elif build_provided:
     print ("No TRs were delivered across the builds")
+    if consolidatedPCIMPList:
+        print ("\n\nTo fetch the possible EPG PCIMP candidates please use the below JIRA query")
+        print ("project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'EPG' ORDER BY created ASC")
+        print ("\n\nTo fetch the possible PCG PCIMP candidates please use the below JIRA query")
+        print ("project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'PCG' ORDER BY created ASC")
+        print ("\n\nTo fetch the possible PCC TR candidates please use the below JIRA query")
+        print ("project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'PCC' ORDER BY created ASC")
 else:
     print ("No TRs were delivered across the builds generated during the provided dates")
-
+    if consolidatedPCIMPList:
+        print ("\n\nTo fetch the possible EPG PCIMP candidates please use the below JIRA query")
+        print ("project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'EPG' ORDER BY created ASC")
+        print ("\n\nTo fetch the possible PCG PCIMP candidates please use the below JIRA query")
+        print ("project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'PCG' ORDER BY created ASC")
+        print ("\n\nTo fetch the possible PCC TR candidates please use the below JIRA query")
+        print ("project = \"PDU PC Improvements\" and key in ("+str(consolidatedPCIMPList)[1:-1]+") and Products = 'PCC' ORDER BY created ASC")
 sys.exit()
